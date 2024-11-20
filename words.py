@@ -42,4 +42,4 @@ class WordFrequencyClassifier:
         return choice(self.word_levels[level])
 
     def is_valid_word(self, word):
-        return word in self.word_freq
+        return word.lower() in self.word_freq
