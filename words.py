@@ -40,3 +40,6 @@ class WordFrequencyClassifier:
     def get_word_by_level(self, level):
         from random import choice
         return choice(self.word_levels[level])
+
+    def is_valid_word(self, word):
+        return word in self.word_freq
