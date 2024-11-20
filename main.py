@@ -1,5 +1,5 @@
-import threading
-from curses.ascii import isalpha
+import selectors
+import sys
 from dataclasses import dataclass, field
 
 from words import WordFrequencyClassifier
@@ -130,28 +130,25 @@ class WordGame:
         if not self.select_word():
             print("⚠️ Failed to select a word for the new level.")
 
-    def get_input_with_timeout(self, timeout: int) -> str:
+    @staticmethod
+    def get_input_with_timeout(timeout: int) -> str:
         """
         Prompt the user for input with a timeout. Returns None if the user fails to respond within the timeout.
         """
-        user_input = [None]  # Shared list to hold the input result
 
-        def read_input():
-            user_input[0] = input("Your word: ").strip()
+        print("Your word: ", end="", flush=True)
 
-        # Start a thread to read input
-        input_thread = threading.Thread(target=read_input, daemon=True)
-        input_thread.start()
+        # Use a selector to monitor stdin for input
+        selector = selectors.DefaultSelector()
+        selector.register(sys.stdin, selectors.EVENT_READ)
 
-        # Wait for the thread or timeout
-        input_thread.join(timeout=timeout)
-
-        # If the thread is still alive after the timeout, it means no input was provided
-        if input_thread.is_alive():
-            return None
-
-        # Otherwise, return the user input
-        return user_input[0]
+        # Wait for input or timeout
+        events = selector.select(timeout)
+        if events:
+            user_input = sys.stdin.readline().strip()
+            return user_input
+        else:
+            return None  # Timeout occurred
 
     def is_valid_submission(self, word: str, player: Player) -> bool:
         return (
