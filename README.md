@@ -19,15 +19,14 @@ Word Bomber is a fun and interactive word game where players compete by quickly 
    cd word-bomber
    ```
 
-2. Create a virtual environment and activate it:
+2. Run the setup script to automate the environment creation and dependencies installation:
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # For Windows: venv\Scripts\activate
+   ./setup.sh
    ```
 
-3. Install the required dependencies:
+3. Activate the virtual environment (if not already activated):
    ```bash
-   pip install -r requirements.txt
+   source .env/bin/activate
    ```
 
 4. Run the game:
@@ -53,6 +52,7 @@ Word Bomber is a fun and interactive word game where players compete by quickly 
 - `main.py`: The main entry point of the game.
 - `words.py`: Handles word classification and validation logic.
 - `requirements.txt`: Specifies project dependencies.
+- `setup.sh`: Automates environment setup, dependency installation, and downloading the NLTK `brown` corpus.
 - `.gitignore`: Lists files and folders to exclude from Git.
 
 ## Contributing
