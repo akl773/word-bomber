@@ -1,3 +1,5 @@
+import random
+
 import nltk
 from nltk.corpus import brown
 
@@ -38,8 +40,7 @@ class WordFrequencyClassifier:
         return levels
 
     def get_word_by_level(self, level):
-        from random import choice
-        return choice(self.word_levels[level])
+        return random.choice(self.word_levels[level])
 
     def is_valid_word(self, word):
         return word.lower() in self.word_freq
