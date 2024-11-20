@@ -1,6 +1,5 @@
 from threading import Timer
 from dataclasses import dataclass, field
-from typing import List, Set
 from words import WordFrequencyClassifier
 
 
@@ -8,7 +7,7 @@ from words import WordFrequencyClassifier
 class Player:
     name: str
     lives: int = 3
-    words_used: Set[str] = field(default_factory=set)
+    words_used: set[str] = field(default_factory=set)
 
     def lose_life(self):
         self.lives -= 1
@@ -18,7 +17,7 @@ class Player:
 
 
 class WordGame:
-    def __init__(self, players: List[str], word_classifier: WordFrequencyClassifier, initial_level: int = 5):
+    def __init__(self, players: list[str], word_classifier: WordFrequencyClassifier, initial_level: int = 5):
         """
         Initialize the WordGame.
         :param players: List of player names.
@@ -141,7 +140,7 @@ class WordGame:
             print("🤷 No winners this time!")
 
 
-if __name__ == "__main__":
+def main():
     print("👋 Welcome to the Word Game setup!")
     word_classifier = WordFrequencyClassifier()
     player_names = input("Enter player names (comma-separated): ").split(",")
@@ -155,3 +154,7 @@ if __name__ == "__main__":
 
     game = WordGame(player_names, word_classifier, initial_level=initial_level)
     game.start_game()
+
+
+if __name__ == "__main__":
+    main()
