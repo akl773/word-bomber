@@ -1,5 +1,4 @@
 from threading import Timer
-
 from words import WordFrequencyClassifier
 
 
@@ -24,7 +23,7 @@ class WordGame:
         :param word_classifier: Instance of WordLevelClassifier.
         :param initial_level: Starting difficulty level (1-10).
         """
-        self.players = [Player(name) for name in players]
+        self.players = [Player(name.strip()) for name in players if name.strip()]
         self.word_classifier = word_classifier
         self.level = initial_level
         self.last_successful_level = initial_level
@@ -51,13 +50,15 @@ class WordGame:
         return all(not player.has_lives() for player in self.players)
 
     def start_game(self):
-        print("Welcome to the Word Game!")
+        print("\n" + "=" * 50)
+        print("🔥 Welcome to the Word Game! 🔥")
+        print("=" * 50)
         if not self.select_word():
             print("Failed to start the game due to word selection issues.")
             return
 
-        print(f"The starting word is: {self.current_word}")
-        print(f"Middle letters to use: {self.middle_letters}")
+        print(f"🎯 Starting word: **{self.current_word}**")
+        print(f"🔤 Middle letters to use: **{self.middle_letters}**")
 
         while not self.all_players_eliminated():
             current_player = self.players[self.current_player_index]
@@ -65,46 +66,49 @@ class WordGame:
                 self.next_player()
                 continue
 
-            print(f"\n{current_player.name}'s turn! Lives remaining: {current_player.lives}")
-            print(f"Enter a word containing: {self.middle_letters} (You have 10 seconds!)")
+            print("\n" + "-" * 50)
+            print(f"🎮 {current_player.name}'s turn! Lives remaining: {current_player.lives}")
+            print(f"📝 Enter a word containing: **{self.middle_letters}** (You have 10 seconds!)")
 
             word = self.get_input_with_timeout(10)
             if word is None:
-                print(f"{current_player.name} took too long!")
+                print(f"⏰ {current_player.name} took too long!")
                 current_player.lose_life()
                 self.all_correct_in_round = False
             elif self.is_valid_submission(word, current_player):
-                print(f"Great! {word} is a valid word.")
+                print(f"✅ Great! **{word}** is a valid word.")
                 current_player.words_used.add(word)
             else:
-                print(f"Invalid word or already used! {current_player.name} loses a life.")
+                print(f"❌ Invalid word or already used! {current_player.name} loses a life.")
                 current_player.lose_life()
                 self.all_correct_in_round = False
 
             if current_player.lives == 0:
-                print(f"{current_player.name} is out of the game!")
+                print(f"💀 {current_player.name} is out of the game!")
             self.next_player()
 
             # Check if the round is over (all players have played once)
             if self.current_player_index == 0:
                 self.adjust_difficulty()
 
-        print("\nGame over!")
+        print("\n" + "=" * 50)
+        print("🏁 Game over!")
         self.display_winner()
+        print("=" * 50)
 
     def adjust_difficulty(self):
         if self.all_correct_in_round:
-            print("\nAll players answered correctly! Increasing difficulty level.")
+            print("\n🎉 All players answered correctly! Increasing difficulty level.")
             self.last_successful_level = self.level
             if self.level < 10:
                 self.level += 1
         else:
-            print("\nSomeone made a mistake. Keeping difficulty level.")
+            print("\n🔄 Someone made a mistake. Keeping difficulty level.")
             self.level = self.last_successful_level
         self.all_correct_in_round = True  # Reset for the next round
 
         if not self.select_word():
-            print("Failed to select a word for the new level.")
+            print("⚠️ Failed to select a word for the new level.")
 
     def get_input_with_timeout(self, timeout):
         result = [None]
@@ -124,25 +128,28 @@ class WordGame:
         return (
                 self.middle_letters in word
                 and word not in player.words_used
-                and is_valid_word(word)
+                and self.word_classifier.is_valid_word(word)
         )
 
     def display_winner(self):
         alive_players = [player for player in self.players if player.has_lives()]
         if alive_players:
-            print(f"Winner(s): {', '.join(player.name for player in alive_players)}")
+            print(f"🏆 Winner(s): {', '.join(player.name for player in alive_players)}")
         else:
-            print("No winners this time!")
-
-
-# Utility function for valid word check (Stub)
-def is_valid_word(word):
-    return len(word) > 1
+            print("🤷 No winners this time!")
 
 
 if __name__ == "__main__":
+    print("👋 Welcome to the Word Game setup!")
     word_classifier = WordFrequencyClassifier()
     player_names = input("Enter player names (comma-separated): ").split(",")
-    initial_level = int(input("Enter starting difficulty level (1-10): "))
+    try:
+        initial_level = int(input("Enter starting difficulty level (1-10): "))
+        if not 1 <= initial_level <= 10:
+            raise ValueError("Level must be between 1 and 10.")
+    except ValueError as e:
+        print(f"⚠️ Invalid input: {e}. Defaulting to level 5.")
+        initial_level = 5
+
     game = WordGame(player_names, word_classifier, initial_level=initial_level)
     game.start_game()
