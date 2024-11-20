@@ -1,26 +1,28 @@
 from threading import Timer
+from dataclasses import dataclass, field
+from typing import List, Set
 from words import WordFrequencyClassifier
 
 
+@dataclass
 class Player:
-    def __init__(self, name):
-        self.name = name
-        self.lives = 3
-        self.words_used = set()
+    name: str
+    lives: int = 3
+    words_used: Set[str] = field(default_factory=set)
 
     def lose_life(self):
         self.lives -= 1
 
-    def has_lives(self):
+    def has_lives(self) -> bool:
         return self.lives > 0
 
 
 class WordGame:
-    def __init__(self, players, word_classifier, initial_level=5):
+    def __init__(self, players: List[str], word_classifier: WordFrequencyClassifier, initial_level: int = 5):
         """
         Initialize the WordGame.
         :param players: List of player names.
-        :param word_classifier: Instance of WordLevelClassifier.
+        :param word_classifier: Instance of WordFrequencyClassifier.
         :param initial_level: Starting difficulty level (1-10).
         """
         self.players = [Player(name.strip()) for name in players if name.strip()]
@@ -32,7 +34,7 @@ class WordGame:
         self.current_player_index = 0
         self.all_correct_in_round = True  # Tracks if all players answered correctly in the current round
 
-    def select_word(self):
+    def select_word(self) -> bool:
         try:
             self.current_word = self.word_classifier.get_word_by_level(self.level)
         except ValueError as e:
@@ -42,11 +44,11 @@ class WordGame:
         self.middle_letters = self.current_word[max(0, mid_idx - 1):mid_idx + 2]
         return True
 
-    def next_player(self):
+    def next_player(self) -> Player:
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
         return self.players[self.current_player_index]
 
-    def all_players_eliminated(self):
+    def all_players_eliminated(self) -> bool:
         return all(not player.has_lives() for player in self.players)
 
     def start_game(self):
@@ -110,7 +112,7 @@ class WordGame:
         if not self.select_word():
             print("⚠️ Failed to select a word for the new level.")
 
-    def get_input_with_timeout(self, timeout):
+    def get_input_with_timeout(self, timeout: int) -> str:
         result = [None]
         timer = Timer(timeout, lambda: None)
 
@@ -124,7 +126,7 @@ class WordGame:
 
         return result[0]
 
-    def is_valid_submission(self, word, player):
+    def is_valid_submission(self, word: str, player: Player) -> bool:
         return (
                 self.middle_letters in word
                 and word not in player.words_used
