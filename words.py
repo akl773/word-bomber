@@ -32,7 +32,7 @@ class WordFrequencyClassifier:
         for level in range(1, 11):
             start = (level - 1) * level_size
             end = level * level_size
-            level_words = [word for word, _ in sorted_words[start:end]]
+            level_words = [word.lower() for word, _ in sorted_words[start:end]]
             levels[level] = level_words
 
         return levels

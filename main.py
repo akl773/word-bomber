@@ -73,14 +73,14 @@ class WordGame:
         print("\n" + "=" * 50)
         print("🔥 Welcome to the Word Game! 🔥")
         print("=" * 50)
+
         if not self.select_word():
             print("Failed to start the game due to word selection issues.")
             return
 
-        print(f"🎯 Starting word: **{self.current_word}**")
         print(f"🔤 Middle letters to use: **{self.middle_letters}**")
 
-        while not self.all_players_eliminated():
+        while len([player for player in self.players if player.has_lives()]) > 1:
             current_player = self.players[self.current_player_index]
             if not current_player.has_lives():
                 self.next_player()
@@ -98,6 +98,12 @@ class WordGame:
             elif self.is_valid_submission(word, current_player):
                 print(f"✅ Great! **{word}** is a valid word.")
                 current_player.words_used.add(word)
+
+                # Select a new word after a correct answer
+                if not self.select_word():
+                    print("⚠️ Failed to select a new word. Ending game.")
+                    break
+                print(f"🎯 New middle letters to use: **{self.middle_letters}**")
             else:
                 print(f"❌ Invalid word or already used! {current_player.name} loses a life.")
                 current_player.lose_life()
@@ -105,16 +111,18 @@ class WordGame:
 
             if current_player.lives == 0:
                 print(f"💀 {current_player.name} is out of the game!")
+
             self.next_player()
 
             # Check if the round is over (all players have played once)
             if self.current_player_index == 0:
                 self.adjust_difficulty()
 
+        # Declare the winner
         print("\n" + "=" * 50)
-        print("🏁 Game over!")
         self.display_winner()
         print("=" * 50)
+
 
     def adjust_difficulty(self):
         if self.all_correct_in_round:
