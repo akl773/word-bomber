@@ -1,4 +1,5 @@
 import threading
+from curses.ascii import isalpha
 from dataclasses import dataclass, field
 
 from words import WordFrequencyClassifier
@@ -25,6 +26,11 @@ class WordGame:
         :param word_classifier: Instance of WordFrequencyClassifier.
         :param initial_level: Starting difficulty level (1-10).
         """
+        if len(players) < 2:
+            raise ValueError("At least 2 players are required to start the game.")
+        if not 1 <= initial_level <= 10:
+            raise ValueError("Level must be between 1 and 10.")
+
         self.players = [Player(name.strip()) for name in players if name.strip()]
         self.word_classifier = word_classifier
         self.level = initial_level
@@ -35,11 +41,23 @@ class WordGame:
         self.all_correct_in_round = True  # Tracks if all players answered correctly in the current round
 
     def select_word(self) -> bool:
+        """
+        Selects a word for the current level. Ensures the word contains only alphabetic characters.
+        :return: True if a valid word is selected, False otherwise.
+        """
         try:
             self.current_word = self.word_classifier.get_word_by_level(self.level)
+
+            # Validate the word to ensure it contains only alphabetic characters
+            if not self.current_word.isalpha():
+                print(f"Invalid word selected: {self.current_word}. Retrying...")
+                return self.select_word()
+
         except ValueError as e:
             print(f"Error selecting word: {e}")
             return False
+
+        # Extract middle letters for the current word
         mid_idx = len(self.current_word) // 2
         self.middle_letters = self.current_word[max(0, mid_idx - 1):mid_idx + 2]
         return True
@@ -153,7 +171,17 @@ class WordGame:
 def main():
     print("👋 Welcome to the Word Game setup!")
     word_classifier = WordFrequencyClassifier()
-    player_names = input("Enter player names (comma-separated): ").split(",")
+
+    # Ensure at least two players
+    while True:
+        player_names = input("Enter player names (comma-separated): ").split(",")
+        player_names = [name.strip() for name in player_names if name.strip()]  # Remove empty names
+        if len(player_names) < 2:
+            print("⚠️ At least two players are required to start the game. Please enter again.")
+        else:
+            break
+
+    # Input starting difficulty level
     try:
         initial_level = int(input("Enter starting difficulty level (1-10): "))
         if not 1 <= initial_level <= 10:
@@ -162,6 +190,7 @@ def main():
         print(f"⚠️ Invalid input: {e}. Defaulting to level 5.")
         initial_level = 5
 
+    # Start the game
     game = WordGame(player_names, word_classifier, initial_level=initial_level)
     game.start_game()
 
