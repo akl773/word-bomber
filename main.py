@@ -1,5 +1,6 @@
-from threading import Timer
+import threading
 from dataclasses import dataclass, field
+
 from words import WordFrequencyClassifier
 
 
@@ -112,18 +113,27 @@ class WordGame:
             print("⚠️ Failed to select a word for the new level.")
 
     def get_input_with_timeout(self, timeout: int) -> str:
-        result = [None]
-        timer = Timer(timeout, lambda: None)
+        """
+        Prompt the user for input with a timeout. Returns None if the user fails to respond within the timeout.
+        """
+        user_input = [None]  # Shared list to hold the input result
 
-        try:
-            timer.start()
-            result[0] = input("Your word: ").strip()
-        except Exception as e:
-            print(e)
-        finally:
-            timer.cancel()
+        def read_input():
+            user_input[0] = input("Your word: ").strip()
 
-        return result[0]
+        # Start a thread to read input
+        input_thread = threading.Thread(target=read_input, daemon=True)
+        input_thread.start()
+
+        # Wait for the thread or timeout
+        input_thread.join(timeout=timeout)
+
+        # If the thread is still alive after the timeout, it means no input was provided
+        if input_thread.is_alive():
+            return None
+
+        # Otherwise, return the user input
+        return user_input[0]
 
     def is_valid_submission(self, word: str, player: Player) -> bool:
         return (
