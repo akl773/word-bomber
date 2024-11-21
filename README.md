@@ -36,7 +36,7 @@ Word Bomber is a fun and interactive word game where players compete by quickly 
 
 ## Requirements
 
-- Python 3.8 or later
+- Python 3.9 or later
 - Dependencies listed in `requirements.txt`
 
 ## How to Play
