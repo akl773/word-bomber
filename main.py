@@ -66,9 +66,6 @@ class WordGame:
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
         return self.players[self.current_player_index]
 
-    def all_players_eliminated(self) -> bool:
-        return all(not player.has_lives() for player in self.players)
-
     def start_game(self):
         print("\n" + "=" * 50)
         print("🔥 Welcome to the Word Game! 🔥")
@@ -123,7 +120,6 @@ class WordGame:
         self.display_winner()
         print("=" * 50)
 
-
     def adjust_difficulty(self):
         if self.all_correct_in_round:
             print("\n🎉 All players answered correctly! Increasing difficulty level.")
@@ -139,7 +135,7 @@ class WordGame:
             print("⚠️ Failed to select a word for the new level.")
 
     @staticmethod
-    def get_input_with_timeout(timeout: int) -> str:
+    def get_input_with_timeout(timeout: int) -> str | None:
         """
         Prompt the user for input with a timeout. Returns None if the user fails to respond within the timeout.
         """
