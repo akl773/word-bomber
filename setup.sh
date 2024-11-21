@@ -13,7 +13,7 @@ fi
 
 # Step 2: Create a virtual environment in the .env folder
 echo "📁 Creating a virtual environment in .env..."
-python3 -m venv .env
+python3 -m venv .venv
 
 # Step 3: Activate the virtual environment
 echo "🔗 Activating the virtual environment..."
