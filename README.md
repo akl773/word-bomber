@@ -15,7 +15,7 @@ Word Bomber is a fun and interactive word game where players compete by quickly 
 
 1. Clone the repository:
    ```bash
-   git clone <repository_url>
+   git clone git@github.com:akl773/word-bomber.git
    cd word-bomber
    ```
 
